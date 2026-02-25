@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — Ivy Intelligence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            background: #f4f7fb;
+        }
+
+        /* Left panel */
+        .left-panel {
+            width: 44%;
+            background: linear-gradient(145deg, #0f2545 0%, #1a3c6e 55%, #2e6dad 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            width: 450px; height: 450px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.04);
+            top: -120px; left: -120px;
+        }
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.05);
+            bottom: -60px; right: -60px;
+        }
+        .left-content { position: relative; z-index: 1; color: white; max-width: 340px; }
+        .brand-logo {
+            font-size: 1.7rem; font-weight: 700; margin-bottom: 2rem;
+            display: flex; align-items: center; gap: .5rem;
+        }
+        .brand-logo span { color: #f0a500; }
+        .left-content h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; }
+        .left-content p { color: rgba(255,255,255,.75); font-size: .9rem; line-height: 1.7; margin-bottom: 1.5rem; }
+
+        .step-card {
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            margin-bottom: .75rem;
+            display: flex;
+            align-items: flex-start;
+            gap: .85rem;
+        }
+        .step-num {
+            width: 28px; height: 28px;
+            background: #f0a500;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .75rem; font-weight: 700; color: #1a3c6e;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .step-text strong { display: block; font-size: .88rem; color: white; }
+        .step-text span { font-size: .8rem; color: rgba(255,255,255,.65); }
+
+        .trust-badges {
+            display: flex; gap: 1rem; margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,.15);
+        }
+        .trust-item { text-align: center; }
+        .trust-item .num { font-size: 1.3rem; font-weight: 700; color: #f0a500; }
+        .trust-item .lbl { font-size: .72rem; color: rgba(255,255,255,.6); }
+
+        /* Right panel */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .signup-card { width: 100%; max-width: 440px; }
+        .signup-card h3 { font-size: 1.55rem; font-weight: 700; color: #1a3c6e; margin-bottom: .3rem; }
+        .signup-card .subtitle { color: #6b7280; font-size: .88rem; margin-bottom: 1.75rem; }
+
+        .form-label { font-weight: 600; font-size: .82rem; color: #374151; margin-bottom: .35rem; }
+        .form-control {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            padding: .72rem 1rem;
+            font-size: .92rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .form-control:focus {
+            border-color: #1a3c6e;
+            box-shadow: 0 0 0 3px rgba(26,60,110,.1);
+            outline: none;
+        }
+        .form-control.is-invalid { border-color: #ef4444; }
+        .invalid-feedback { font-size: .8rem; color: #ef4444; }
+
+        .input-group .form-control { border-right: none; border-radius: 10px 0 0 10px; }
+        .input-group .btn-toggle {
+            border: 1.5px solid #e5e7eb; border-left: none;
+            border-radius: 0 10px 10px 0;
+            background: white; color: #9ca3af;
+            padding: 0 .85rem;
+        }
+        .input-group .btn-toggle:hover { background: #f9fafb; color: #374151; }
+
+        .password-strength {
+            height: 4px; border-radius: 2px;
+            margin-top: .4rem; margin-bottom: .25rem;
+            transition: width .3s, background .3s;
+            background: #e5e7eb;
+            position: relative;
+        }
+        .password-strength-bar {
+            height: 100%; border-radius: 2px;
+            transition: width .3s, background .3s;
+        }
+        .strength-label { font-size: .75rem; color: #9ca3af; }
+
+        .btn-signup {
+            background: linear-gradient(135deg, #1a3c6e, #2e6dad);
+            border: none; border-radius: 10px;
+            padding: .82rem; font-size: .98rem;
+            font-weight: 600; color: white;
+            width: 100%; cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            margin-top: .75rem;
+        }
+        .btn-signup:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,60,110,.3); }
+
+        .terms-text { font-size: .78rem; color: #9ca3af; text-align: center; margin-top: .75rem; }
+        .terms-text a { color: #1a3c6e; text-decoration: none; }
+
+        .login-link { text-align: center; margin-top: 1.25rem; font-size: .88rem; color: #6b7280; }
+        .login-link a { color: #1a3c6e; font-weight: 600; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
+
+        .error-box {
+            background: #fef2f2; border: 1px solid #fecaca;
+            color: #991b1b; border-radius: 10px;
+            padding: .75rem 1rem; font-size: .85rem; margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .left-panel { display: none; }
+            .right-panel { padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Left panel -->
+<div class="left-panel">
+    <div class="left-content">
+        <div class="brand-logo">
+            <i class="bi bi-mortarboard-fill"></i>
+            Ivy<span>Intelligence</span>
+        </div>
+        <h2>Start your Ivy League journey today</h2>
+        <p>Join thousands of students discovering world-class opportunities matched to their interests and skills.</p>
+
+        <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-text">
+                <strong>Create your profile</strong>
+                <span>Add your skills, domains, and resume in minutes</span>
+            </div>
+        </div>
+        <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-text">
+                <strong>Get personalized matches</strong>
+                <span>Our AI finds opportunities perfectly suited to you</span>
+            </div>
+        </div>
+        <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-text">
+                <strong>Apply with one click</strong>
+                <span>Auto-fill forms using your profile data</span>
+            </div>
+        </div>
+        <div class="step-card">
+            <div class="step-num">4</div>
+            <div class="step-text">
+                <strong>Build your InCoScore</strong>
+                <span>Rank among peers and get smart shortlisted</span>
+            </div>
+        </div>
+
+        <div class="trust-badges">
+            <div class="trust-item">
+                <div class="num">10+</div>
+                <div class="lbl">Universities</div>
+            </div>
+            <div class="trust-item">
+                <div class="num">7</div>
+                <div class="lbl">Domains</div>
+            </div>
+            <div class="trust-item">
+                <div class="num">Free</div>
+                <div class="lbl">Always</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Right signup panel -->
+<div class="right-panel">
+    <div class="signup-card">
+        <h3>Create your account 🚀</h3>
+        <p class="subtitle">Free forever. No credit card required.</p>
+
+        {% if form.errors %}
+        <div class="error-box">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            Please fix the errors below to continue.
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div>• {{ field.label }}: {{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <div>• {{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'account_signup' %}" id="signupForm">
+            {% csrf_token %}
+
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control" placeholder="Arjun"
+                           value="{{ form.first_name.value|default:'' }}">
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control" placeholder="Sharma"
+                           value="{{ form.last_name.value|default:'' }}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Username <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                       placeholder="arjun_sharma" value="{{ form.username.value|default:'' }}" required>
+                {% if form.username.errors %}
+                <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email Address <span style="color:#ef4444;">*</span></label>
+                <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                       placeholder="arjun@lpu.edu" value="{{ form.email.value|default:'' }}" required>
+                {% if form.email.errors %}
+                <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password <span style="color:#ef4444;">*</span></label>
+                <div class="input-group">
+                    <input type="password" name="password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                           placeholder="Min. 8 characters" id="pwd1" oninput="checkStrength()" required>
+                    <button type="button" class="btn-toggle" onclick="togglePwd('pwd1', 'eye1')">
+                        <i class="bi bi-eye" id="eye1"></i>
+                    </button>
+                </div>
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar" style="width:0%;background:#e5e7eb;"></div>
+                </div>
+                <span class="strength-label" id="strengthLabel"></span>
+                {% if form.password1.errors %}
+                <div class="invalid-feedback d-block">{{ form.password1.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirm Password <span style="color:#ef4444;">*</span></label>
+                <div class="input-group">
+                    <input type="password" name="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                           placeholder="Re-enter your password" id="pwd2" required>
+                    <button type="button" class="btn-toggle" onclick="togglePwd('pwd2', 'eye2')">
+                        <i class="bi bi-eye" id="eye2"></i>
+                    </button>
+                </div>
+                {% if form.password2.errors %}
+                <div class="invalid-feedback d-block">{{ form.password2.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-signup">
+                <i class="bi bi-person-plus me-2"></i>Create My Account
+            </button>
+        </form>
+
+        <p class="terms-text mt-2">
+            By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </p>
+
+        <div class="login-link">
+            Already have an account? <a href="{% url 'account_login' %}">Log in →</a>
+        </div>
+
+        <div class="login-link mt-2" style="font-size:.8rem;">
+            <a href="{% url 'home' %}" style="color:#9ca3af; font-weight:400;">
+                <i class="bi bi-arrow-left me-1"></i>Back to home
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePwd(fieldId, iconId) {
+    const f = document.getElementById(fieldId);
+    const i = document.getElementById(iconId);
+    f.type = f.type === 'password' ? 'text' : 'password';
+    i.className = f.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+
+function checkStrength() {
+    const pwd = document.getElementById('pwd1').value;
+    const bar = document.getElementById('strengthBar');
+    const label = document.getElementById('strengthLabel');
+
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+    const configs = [
+        { w: '0%',   bg: '#e5e7eb', txt: '' },
+        { w: '25%',  bg: '#ef4444', txt: 'Weak' },
+        { w: '50%',  bg: '#f97316', txt: 'Fair' },
+        { w: '75%',  bg: '#eab308', txt: 'Good' },
+        { w: '100%', bg: '#22c55e', txt: 'Strong 💪' },
+    ];
+    const cfg = configs[pwd.length === 0 ? 0 : score];
+    bar.style.width = cfg.w;
+    bar.style.background = cfg.bg;
+    label.textContent = cfg.txt;
+    label.style.color = cfg.bg;
+}
+</script>
+</body>
+</html>

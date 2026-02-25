@@ -1,0 +1,147 @@
+{% extends 'base/base.html' %}
+{% block title %}My InCoScore — Ivy Intelligence{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4" style="color: var(--ivy-blue);">🏆 My InCoScore Dashboard</h3>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card p-4 text-center">
+                <h5 class="fw-bold mb-3">Your InCoScore</h5>
+                <div class="score-ring mb-2">{{ profile.incoscore|floatformat:1 }}</div>
+                <p class="text-muted small mb-2">Out of 100.0</p>
+                <div class="progress mb-3" style="height:12px;border-radius:6px;">
+                    <div class="progress-bar bg-warning" role="progressbar"
+                         style="width:{{ profile.incoscore|floatformat:0 }}%;border-radius:6px;">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">✓ {{ verified_count }} Verified</span>
+                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-2">⏳ {{ pending_count }} Pending</span>
+                </div>
+            </div>
+            <div class="card p-3 mt-3">
+                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1 text-primary"></i>Formula</h6>
+                <p class="small text-muted mb-2">InCoScore = Σ (raw / 100) × weight × 100</p>
+                <table class="table table-sm table-borderless mb-0" style="font-size:.8rem;">
+                    <tr><td>Research Papers</td><td class="text-end fw-bold text-primary">30%</td></tr>
+                    <tr><td>Hackathon Wins</td><td class="text-end fw-bold text-primary">25%</td></tr>
+                    <tr><td>Internships</td><td class="text-end fw-bold text-primary">20%</td></tr>
+                    <tr><td>Coding</td><td class="text-end fw-bold text-primary">15%</td></tr>
+                    <tr><td>Conferences</td><td class="text-end fw-bold text-primary">10%</td></tr>
+                    <tr><td>CGPA ≥ 9.0</td><td class="text-end fw-bold text-success">+5 pts</td></tr>
+                </table>
+            </div>
+            {% if history %}
+            <div class="card p-3 mt-3">
+                <h6 class="fw-bold mb-2">Score History</h6>
+                {% for record in history %}
+                <div class="d-flex justify-content-between small border-bottom pb-1 mb-1">
+                    <span class="text-muted">{{ record.recorded_at|date:"M d, Y" }}</span>
+                    <span class="fw-bold text-primary">{{ record.score|floatformat:1 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-8">
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3">Score Breakdown</h5>
+                {% for cat, data in breakdown.items %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="small fw-bold">{{ cat }}</span>
+                        <span class="small text-muted">{{ data.contribution }} / {{ data.max_contribution }} pts ({{ data.weight }})</span>
+                    </div>
+                    <div class="progress" style="height:8px;border-radius:4px;background:#e9ecef;">
+                        <div class="progress-bar bg-primary" role="progressbar"
+                             style="width:{{ data.contribution|floatformat:0 }}%;border-radius:4px;max-width:100%;">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2 text-primary"></i>Add Achievement</h5>
+                <form method="POST" action="{% url 'add_achievement' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Category *</label>
+                            <select name="category" class="form-select" required>
+                                <option value="">Select Category</option>
+                                {% for code, name in categories %}
+                                <option value="{{ code }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Date Achieved</label>
+                            <input type="date" name="achieved_on" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Title *</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. 1st Place — HackMIT 2024" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Proof URL</label>
+                        <input type="url" name="proof_url" class="form-control" placeholder="Certificate or result page link">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Briefly describe this achievement..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Upload Proof (PDF/Image)</label>
+                        <input type="file" name="proof_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-send me-2"></i>Submit for Verification
+                    </button>
+                    <small class="text-muted d-block mt-2"><i class="bi bi-shield-check me-1"></i>Admin verifies before it affects your score.</small>
+                </form>
+            </div>
+            {% if achievements %}
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3">Your Achievements</h5>
+                {% for a in achievements %}
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                    <div class="d-flex gap-2">
+                        <span style="font-size:1.4rem;">{% if a.category == 'RESEARCH' %}📄{% elif a.category == 'HACKATHON' %}🏆{% elif a.category == 'INTERNSHIP' %}💼{% elif a.category == 'CODING' %}💻{% elif a.category == 'CONFERENCE' %}🎤{% else %}🎓{% endif %}</span>
+                        <div>
+                            <strong>{{ a.title }}</strong>
+                            <div class="mt-1">
+                                <span class="badge {% if a.verified %}bg-success{% else %}bg-warning text-dark{% endif %}">{% if a.verified %}✓ Verified{% else %}⏳ Pending{% endif %}</span>
+                                <span class="small text-muted ms-1">{{ a.get_category_display }}</span>
+                                {% if a.achieved_on %}<small class="text-muted ms-2">{{ a.achieved_on|date:"M Y" }}</small>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-primary">{{ a.raw_score }} pts</div>
+                        {% if not a.verified %}
+                        <a href="{% url 'delete_achievement' a.id %}" onclick="return confirm('Remove?')" class="btn btn-sm btn-outline-danger mt-1" style="font-size:.72rem;">Remove</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if recommendations %}
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-star me-2 text-warning"></i>Recommended For You</h5>
+                {% for opp in recommendations %}
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <span class="domain-badge domain-{{ opp.domain }} me-2">{{ opp.domain }}</span>
+                        <span class="small fw-bold">{{ opp.title|truncatewords:8 }}</span>
+                    </div>
+                    <a href="{% url 'opportunity_detail' opp.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,321 @@
+{% extends 'base/base.html' %}
+{% block title %}{{ group.name }} — Ivy Intelligence{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-wrap { border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; background: white; }
+.chat-header { background: linear-gradient(135deg, #0f2545, #1a3c6e); color: white; padding: .85rem 1.1rem; display: flex; align-items: center; justify-content: space-between; }
+#chat-messages { height: 360px; overflow-y: auto; padding: 1rem; background: #f8fafc; display: flex; flex-direction: column; gap: .6rem; }
+.msg-row { display: flex; flex-direction: column; max-width: 82%; }
+.msg-row.own { align-self: flex-end; align-items: flex-end; }
+.msg-row.other { align-self: flex-start; align-items: flex-start; }
+.bubble { padding: .55rem .95rem; border-radius: 18px; font-size: .9rem; line-height: 1.45; word-break: break-word; }
+.msg-row.own .bubble { background: #1a3c6e; color: #fff; border-radius: 18px 18px 4px 18px; }
+.msg-row.other .bubble { background: #fff; color: #1f2937; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.msg-meta { font-size: .7rem; color: #9ca3af; margin-top: 3px; padding: 0 4px; }
+.chat-footer { padding: .75rem; border-top: 1px solid #e5e7eb; background: #fff; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.dot.live { background: #22c55e; animation: pulse 2s infinite; }
+.dot.poll { background: #f59e0b; }
+.dot.off { background: #9ca3af; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+
+        <!-- LEFT: Group info + Posts -->
+        <div class="col-lg-8">
+            <!-- Group header -->
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <span class="badge bg-primary mb-2">{{ group.get_domain_display }}</span>
+                        <h3 class="fw-bold mb-1">{{ group.name }}</h3>
+                        <p class="text-muted mb-2">{{ group.description }}</p>
+                        <small class="text-muted"><i class="bi bi-people me-1"></i>{{ group.member_count }} members</small>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'join_group' group.id %}"
+                       class="btn {% if is_member %}btn-outline-danger{% else %}btn-primary{% endif %}">
+                        {% if is_member %}<i class="bi bi-box-arrow-left me-1"></i>Leave
+                        {% else %}<i class="bi bi-plus-circle me-1"></i>Join Group{% endif %}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Create post form (members only) -->
+            {% if user.is_authenticated and is_member %}
+            <div class="card p-3 mb-4">
+                <h6 class="fw-semibold mb-2 text-muted"><i class="bi bi-pencil me-2"></i>Post to this group</h6>
+                <form method="POST" action="{% url 'create_post' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="group_id" value="{{ group.id }}">
+                    <input type="hidden" name="domain_tag" value="{{ group.domain }}">
+                    <textarea name="content" class="form-control mb-2" rows="2"
+                              placeholder="Share something with {{ group.name }}..."></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary btn-sm px-4">
+                            <i class="bi bi-send me-1"></i>Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Posts list -->
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-file-post me-2"></i>Group Posts
+                <span class="badge bg-secondary ms-1">{{ posts.count }}</span>
+            </h5>
+            {% for post in posts %}
+            <div class="card p-3 mb-3">
+                <div class="d-flex align-items-center mb-2 gap-2">
+                    <div style="width:36px;height:36px;border-radius:50%;background:#1a3c6e;
+                                display:flex;align-items:center;justify-content:center;
+                                color:white;font-weight:700;font-size:.9rem;flex-shrink:0;">
+                        {{ post.author.username.0|upper }}
+                    </div>
+                    <div>
+                        <a href="{% url 'profile_view' post.author.username %}"
+                           class="fw-semibold text-decoration-none text-dark small">{{ post.author.username }}</a>
+                        <small class="text-muted d-block" style="font-size:.72rem;">{{ post.created_at|timesince }} ago</small>
+                    </div>
+                </div>
+                <p class="mb-2">{{ post.content }}</p>
+                <div class="d-flex gap-3">
+                    <small class="text-muted"><i class="bi bi-heart me-1"></i>{{ post.like_count }}</small>
+                    <small class="text-muted"><i class="bi bi-chat me-1"></i>{{ post.comment_count }}</small>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card p-4 text-center text-muted">
+                <i class="bi bi-chat-square" style="font-size:2.5rem;opacity:.3;"></i>
+                <p class="mt-2 mb-0">No posts yet.
+                    {% if is_member %}Be the first to share!
+                    {% else %}Join the group to post.{% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- RIGHT: Live Chat -->
+        <div class="col-lg-4">
+            <div class="chat-wrap mb-3">
+                <div class="chat-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-chat-dots-fill"></i>
+                        <span class="fw-bold">Group Chat</span>
+                    </div>
+                    <span id="chatStatus" style="font-size:.75rem;">
+                        <span class="dot off" id="statusDot"></span>
+                        <span id="statusText">Connecting...</span>
+                    </span>
+                </div>
+
+                <div id="chat-messages">
+                    {% if recent_messages %}
+                    {% for msg in recent_messages %}
+                    <div class="msg-row {% if msg.sender.username == request.user.username %}own{% else %}other{% endif %}">
+                        {% if msg.sender.username != request.user.username %}
+                        <div class="msg-meta">{{ msg.sender.username }}</div>
+                        {% endif %}
+                        <div class="bubble">{{ msg.message }}</div>
+                        <div class="msg-meta">{{ msg.sent_at|time:"H:i" }}</div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div id="empty-chat" class="text-center text-muted py-4" style="font-size:.85rem;margin:auto;">
+                        <i class="bi bi-chat-heart d-block mb-2" style="font-size:2rem;opacity:.4;"></i>
+                        No messages yet. Start the conversation!
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="chat-footer">
+                    {% if user.is_authenticated and is_member %}
+                    <div class="d-flex gap-2">
+                        <input type="text" id="chatInput" class="form-control form-control-sm"
+                               placeholder="Type a message... (Enter to send)" maxlength="500" autocomplete="off">
+                        <button id="sendBtn" class="btn btn-primary btn-sm px-3">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                    {% elif user.is_authenticated %}
+                    <div class="text-center">
+                        <a href="{% url 'join_group' group.id %}" class="btn btn-sm btn-primary w-100">
+                            <i class="bi bi-plus-circle me-1"></i>Join group to chat
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="text-center">
+                        <a href="{% url 'account_login' %}" class="btn btn-sm btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login to chat
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Members -->
+            <div class="card p-3">
+                <h6 class="fw-bold mb-2"><i class="bi bi-people me-2"></i>Members ({{ group.member_count }})</h6>
+                {% for member in group.members.all|slice:":10" %}
+                <div class="d-flex align-items-center mb-2 gap-2">
+                    <div style="width:28px;height:28px;border-radius:50%;background:#1a3c6e;
+                                display:flex;align-items:center;justify-content:center;
+                                color:white;font-size:.72rem;font-weight:700;flex-shrink:0;">
+                        {{ member.username.0|upper }}
+                    </div>
+                    <a href="{% url 'profile_view' member.username %}"
+                       class="text-decoration-none text-dark small fw-medium">{{ member.username }}</a>
+                    {% if member == group.created_by %}
+                    <span class="badge bg-warning text-dark ms-auto" style="font-size:.65rem;">Admin</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted small mb-0">No members yet.</p>
+                {% endfor %}
+                {% if group.member_count > 10 %}
+                <small class="text-muted">+{{ group.member_count|add:"-10" }} more members</small>
+                {% endif %}
+            </div>
+        </div><!-- /col -->
+    </div><!-- /row -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_authenticated and is_member %}
+<script>
+const GROUP_ID   = {{ group.id }};
+const MY_NAME    = "{{ request.user.username|escapejs }}";
+const CSRF       = "{{ csrf_token }}";
+const SEND_URL   = "{% url 'send_message' group.id %}";
+const POLL_URL   = "{% url 'get_messages' group.id %}";
+const WS_URL     = `${ location.protocol === 'https:' ? 'wss' : 'ws' }://${ location.host }/ws/chat/${ GROUP_ID }/`;
+
+let lastId       = 0;   // track newest message id for polling
+let socket       = null;
+let mode         = 'off'; // 'ws' | 'poll' | 'off'
+let pollTimer    = null;
+
+/* ── status dot ─────────────────────────────────────── */
+function setStatus(m) {
+    mode = m;
+    const dot  = document.getElementById('statusDot');
+    const txt  = document.getElementById('statusText');
+    dot.className = 'dot ' + m;
+    txt.textContent = { ws:'Live', poll:'Active', off:'Offline' }[m] || m;
+}
+
+/* ── append a message bubble ─────────────────────────── */
+function appendMsg(username, message, time) {
+    const empty = document.getElementById('empty-chat');
+    if (empty) empty.remove();
+    const box = document.getElementById('chat-messages');
+    const own  = username === MY_NAME;
+    const row  = document.createElement('div');
+    row.className = 'msg-row ' + (own ? 'own' : 'other');
+    row.innerHTML = `
+        ${ !own ? `<div class="msg-meta">${ esc(username) }</div>` : '' }
+        <div class="bubble">${ esc(message) }</div>
+        <div class="msg-meta">${ time }</div>`;
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+}
+function esc(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function now() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+/* ── send via POST (always reliable) ─────────────────── */
+async function httpSend(msg) {
+    const r = await fetch(SEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': CSRF },
+        body: 'message=' + encodeURIComponent(msg)
+    });
+    const data = await r.json();
+    if (data.ok) {
+        lastId = Math.max(lastId, data.id);
+        appendMsg(MY_NAME, msg, data.time);
+    }
+}
+
+/* ── poll for new messages ───────────────────────────── */
+function startPolling() {
+    if (pollTimer) return;
+    setStatus('poll');
+    pollTimer = setInterval(async () => {
+        try {
+            const r = await fetch(POLL_URL + '?after=' + lastId);
+            const data = await r.json();
+            data.messages.forEach(m => {
+                if (m.username !== MY_NAME) {   // don't duplicate own sent msgs
+                    appendMsg(m.username, m.message, m.time);
+                }
+                lastId = Math.max(lastId, m.id);
+            });
+        } catch(e) { setStatus('off'); }
+    }, 3000);
+}
+
+/* ── WebSocket setup (bonus — works if daphne running) ─ */
+function tryWS() {
+    try {
+        socket = new WebSocket(WS_URL);
+        socket.onopen  = () => { setStatus('ws'); clearInterval(pollTimer); pollTimer = null; };
+        socket.onmessage = e => {
+            const d = JSON.parse(e.data);
+            if (d.type === 'message' && d.username !== MY_NAME)
+                appendMsg(d.username, d.message, d.time || now());
+        };
+        socket.onerror  = () => socket.close();
+        socket.onclose  = () => { socket = null; startPolling(); };
+        setTimeout(() => { if (socket && socket.readyState !== WebSocket.OPEN) { socket.close(); } }, 3000);
+    } catch(e) {
+        startPolling();
+    }
+}
+
+/* ── send handler ────────────────────────────────────── */
+function sendMsg() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ message: msg }));
+        appendMsg(MY_NAME, msg, now());
+    } else {
+        httpSend(msg);
+    }
+}
+
+document.getElementById('sendBtn').addEventListener('click', sendMsg);
+document.getElementById('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+/* ── init: grab last message id, then start ────────── */
+(async () => {
+    const r = await fetch(POLL_URL + '?after=0').catch(() => null);
+    if (r && r.ok) {
+        const data = await r.json();
+        if (data.messages.length) lastId = data.messages.at(-1).id;
+    }
+    document.getElementById('chat-messages').scrollTop = 99999;
+    tryWS();          // attempt WebSocket first; falls back to polling
+    startPolling();   // always poll as safety net
+})();
+</script>
+{% endif %}
+{% endblock %}

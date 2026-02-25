@@ -1,0 +1,243 @@
+{% extends 'base/base.html' %}
+{% block title %}Edit Profile — Ivy Intelligence{% endblock %}
+
+{% block extra_css %}
+<style>
+.section-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.5rem; margin-bottom:1.5rem; }
+.section-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#1a3c6e; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
+.form-label { font-size:.83rem; font-weight:600; color:#374151; margin-bottom:.3rem; }
+.form-control, .form-select {
+    border:1.5px solid #e5e7eb; border-radius:8px;
+    padding:.65rem .9rem; font-size:.92rem;
+    transition:border-color .2s, box-shadow .2s;
+}
+.form-control:focus, .form-select:focus {
+    border-color:#1a3c6e; box-shadow:0 0 0 3px rgba(26,60,110,.1); outline:none;
+}
+.domain-tile { cursor:pointer; }
+.domain-tile input[type=checkbox] { display:none; }
+.tile-inner {
+    border:2px solid #e5e7eb; border-radius:10px;
+    padding:.6rem .4rem; text-align:center;
+    background:#f9fafb; transition:all .18s;
+    user-select:none;
+}
+.domain-tile input:checked ~ .tile-inner {
+    border-color:#1a3c6e; background:#dbeafe; color:#1a3c6e;
+}
+.tile-inner:hover { border-color:#93c5fd; background:#eff6ff; }
+.tile-emoji { font-size:1.5rem; display:block; }
+.tile-label { font-size:.75rem; font-weight:600; margin-top:.2rem; }
+.skill-tag { background:#eff6ff; color:#1a3c6e; border:1px solid #bfdbfe; border-radius:20px; padding:.2rem .75rem; font-size:.8rem; display:inline-flex; align-items:center; gap:.3rem; }
+.skill-tag button { background:none; border:none; color:#6b7280; padding:0; font-size:.8rem; line-height:1; cursor:pointer; }
+.skill-tag button:hover { color:#ef4444; }
+.save-bar { position:sticky; bottom:0; background:white; border-top:1px solid #e5e7eb; padding:1rem 0; margin-top:1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:840px;">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{% url 'profile_view' request.user.username %}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        <div>
+            <h4 class="fw-bold mb-0" style="color:#1a3c6e;">Edit Your Profile</h4>
+            <small class="text-muted">Keep your profile complete to get better opportunity matches</small>
+        </div>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show border-0" role="alert"
+         style="background:#f0fdf4;color:#166534;border-left:4px solid #22c55e!important;border-radius:8px;">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" id="profileForm" novalidate>
+        {% csrf_token %}
+
+        <!-- ① Personal -->
+        <div class="section-card">
+            <div class="section-title"><i class="bi bi-person-circle"></i> Personal Information</div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control"
+                           value="{{ request.user.first_name }}" placeholder="Arjun">
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control"
+                           value="{{ request.user.last_name }}" placeholder="Sharma">
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control"
+                           value="{{ request.user.email }}" placeholder="you@email.com">
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">Profile Photo</label>
+                    {% if profile.avatar %}
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <img src="{{ profile.avatar.url }}" class="rounded-circle"
+                             style="width:36px;height:36px;object-fit:cover;">
+                        <small class="text-muted">Current photo</small>
+                    </div>
+                    {% endif %}
+                    <input type="file" name="avatar" class="form-control" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Bio</label>
+                    <textarea name="bio" class="form-control" rows="3"
+                              placeholder="Tell the community about yourself — your interests, goals, and background...">{{ profile.bio }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ② Academic -->
+        <div class="section-card">
+            <div class="section-title"><i class="bi bi-mortarboard"></i> Academic Information</div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label class="form-label">University / College</label>
+                    <input type="text" name="university" class="form-control"
+                           value="{{ profile.university }}"
+                           placeholder="Lovely Professional University">
+                </div>
+                <div class="col-sm-3">
+                    <label class="form-label">Year of Study</label>
+                    <select name="year_of_study" class="form-select">
+                        <option value="">-- Select --</option>
+                        {% for val, lbl in year_choices %}
+                        <option value="{{ val }}" {% if profile.year_of_study == val %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <label class="form-label">CGPA <small class="text-muted fw-normal">(out of 10)</small></label>
+                    <input type="number" name="cgpa" class="form-control"
+                           step="0.1" min="0" max="10"
+                           value="{{ profile.cgpa|default:'' }}" placeholder="8.5">
+                </div>
+            </div>
+        </div>
+
+        <!-- ③ Skills -->
+        <div class="section-card">
+            <div class="section-title"><i class="bi bi-tools"></i> Skills</div>
+            <label class="form-label">Your Skills <small class="text-muted fw-normal">(comma-separated)</small></label>
+            <input type="text" name="skills_input" id="skillsInput" class="form-control mb-2"
+                   value="{% if profile.skills %}{{ profile.skills|join:', ' }}{% endif %}"
+                   placeholder="Python, Machine Learning, Django, React, SQL, Docker...">
+            <div id="skillTagsPreview" class="d-flex flex-wrap gap-1 mt-1"></div>
+            <small class="text-muted">Used in profile and matched against opportunity requirements.</small>
+        </div>
+
+        <!-- ④ Domain Interests -->
+        <div class="section-card">
+            <div class="section-title"><i class="bi bi-grid-3x3-gap"></i> Domain Interests</div>
+            <p class="small text-muted mb-3">
+                Select all domains you're interested in. Your dashboard will show only matching opportunities.
+            </p>
+            <div class="row g-2">
+                {% for code, name in domain_choices %}
+                <div class="col-4 col-sm-3 col-md-2">
+                    <label class="domain-tile d-block">
+                        <input type="checkbox" name="domains_of_interest" value="{{ code }}"
+                               {% if profile.domains_of_interest and code in profile.domains_of_interest %}checked{% endif %}>
+                        <div class="tile-inner">
+                            <span class="tile-emoji">
+                                {% if code == 'AI' %}🤖
+                                {% elif code == 'LAW' %}⚖️
+                                {% elif code == 'BIO' %}🧬
+                                {% elif code == 'ECE' %}⚡
+                                {% elif code == 'CS' %}💻
+                                {% elif code == 'BUSINESS' %}📈
+                                {% elif code == 'ENV' %}🌿
+                                {% else %}🎓{% endif %}
+                            </span>
+                            <div class="tile-label">{{ name }}</div>
+                        </div>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ⑤ Resume & Links -->
+        <div class="section-card">
+            <div class="section-title"><i class="bi bi-file-earmark-person"></i> Resume & Links</div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Resume / CV</label>
+                    {% if profile.resume %}
+                    <div class="alert py-2 mb-2" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:.85rem;">
+                        <i class="bi bi-file-earmark-pdf me-2 text-primary"></i>
+                        Current file: <a href="{{ profile.resume.url }}" target="_blank" class="fw-bold text-primary">Download</a>
+                        &mdash; Upload a new file to replace it
+                    </div>
+                    {% endif %}
+                    <input type="file" name="resume" class="form-control" accept=".pdf,.doc,.docx">
+                    <small class="text-muted">PDF recommended. Used for auto-fill applications.</small>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">
+                        <i class="bi bi-linkedin me-1" style="color:#0a66c2;"></i>LinkedIn URL
+                    </label>
+                    <input type="url" name="linkedin_url" class="form-control"
+                           value="{{ profile.linkedin_url }}"
+                           placeholder="https://linkedin.com/in/yourname">
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">
+                        <i class="bi bi-github me-1"></i>GitHub URL
+                    </label>
+                    <input type="url" name="github_url" class="form-control"
+                           value="{{ profile.github_url }}"
+                           placeholder="https://github.com/yourname">
+                </div>
+            </div>
+        </div>
+
+        <!-- Save bar -->
+        <div class="save-bar">
+            <div class="d-flex gap-3 align-items-center">
+                <button type="submit" class="btn btn-primary px-5" style="border-radius:8px;">
+                    <i class="bi bi-check-circle me-2"></i>Save Profile
+                </button>
+                <a href="{% url 'profile_view' request.user.username %}" class="btn btn-light px-4" style="border-radius:8px;">
+                    Cancel
+                </a>
+                <small class="text-muted ms-auto d-none d-md-block">
+                    <i class="bi bi-shield-check me-1 text-success"></i>Your data is saved securely
+                </small>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+// Live skill tag preview
+function renderSkills() {
+    const val = document.getElementById('skillsInput').value;
+    const box = document.getElementById('skillTagsPreview');
+    box.innerHTML = '';
+    val.split(',').forEach(s => {
+        s = s.trim();
+        if (!s) return;
+        const span = document.createElement('span');
+        span.className = 'skill-tag';
+        span.textContent = s;
+        box.appendChild(span);
+    });
+}
+document.getElementById('skillsInput').addEventListener('input', renderSkills);
+renderSkills();
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base/base.html' %}
+{% block title %}Student Leaderboard — Ivy Intelligence{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+    <h3 class="fw-bold mb-4" style="color: var(--ivy-blue);">Student Leaderboard</h3>
+    {% if profiles %}
+    <div class="card">
+        <table class="table align-middle mb-0">
+            <thead style="background:#f4f7fb;">
+                <tr>
+                    <th class="ps-3">Rank</th><th>Student</th><th>University</th><th>InCoScore</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td class="ps-3 fw-bold text-muted">#{{ forloop.counter }}</td>
+                    <td><a href="{% url 'profile_view' profile.user.username %}" class="text-decoration-none fw-bold text-dark">{{ profile.user.username }}</a></td>
+                    <td class="small text-muted">{{ profile.university|default:"—" }}</td>
+                    <td><strong>{{ profile.incoscore|floatformat:1 }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No ranked students yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ivy Intelligence{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════
+           DESIGN TOKENS — Light & Dark
+        ══════════════════════════════════════════════ */
+        :root {
+            --ivy-blue:    #1a3c6e;
+            --ivy-light:   #2e6dad;
+            --ivy-accent:  #f0a500;
+            --ivy-accent2: #e05d20;
+
+            /* LIGHT MODE */
+            --bg:          #f0f4fa;
+            --bg2:         #ffffff;
+            --bg3:         #e8eef8;
+            --surface:     #ffffff;
+            --surface2:    #f7f9fc;
+            --border:      #e2e8f0;
+            --text-primary:#1a2744;
+            --text-secondary:#5a6a8a;
+            --text-muted:  #94a3b8;
+            --nav-bg:      #0f2545;
+            --nav-border:  rgba(255,255,255,.07);
+            --shadow-sm:   0 1px 4px rgba(26,60,110,.08);
+            --shadow-md:   0 4px 20px rgba(26,60,110,.1);
+            --shadow-lg:   0 8px 40px rgba(26,60,110,.15);
+            --card-hover:  0 8px 32px rgba(26,60,110,.14);
+        }
+
+        [data-theme="dark"] {
+            --bg:          #0d1117;
+            --bg2:         #161b22;
+            --bg3:         #1c2333;
+            --surface:     #1c2333;
+            --surface2:    #21293b;
+            --border:      #2d3a50;
+            --text-primary:#e2e8f0;
+            --text-secondary:#94a3b8;
+            --text-muted:  #64748b;
+            --nav-bg:      #090e18;
+            --nav-border:  rgba(255,255,255,.06);
+            --shadow-sm:   0 1px 4px rgba(0,0,0,.4);
+            --shadow-md:   0 4px 20px rgba(0,0,0,.4);
+            --shadow-lg:   0 8px 40px rgba(0,0,0,.5);
+            --card-hover:  0 8px 32px rgba(0,0,0,.5);
+        }
+
+        /* ══════════════════════════════════════════════
+           BASE
+        ══════════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            transition: background .3s, color .3s;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════════════════
+           NAVBAR
+        ══════════════════════════════════════════════ */
+        .navbar {
+            background: var(--nav-bg) !important;
+            border-bottom: 1px solid var(--nav-border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: .6rem 0;
+            position: sticky; top: 0; z-index: 1030;
+            box-shadow: 0 2px 20px rgba(0,0,0,.25);
+        }
+        .navbar-brand {
+            font-family: 'Sora', sans-serif;
+            font-weight: 800; font-size: 1.25rem;
+            color: white !important; letter-spacing: -.02em;
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .navbar-brand .accent { color: var(--ivy-accent); }
+        .brand-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--ivy-accent), var(--ivy-accent2));
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .95rem;
+        }
+        .nav-link {
+            color: rgba(255,255,255,.75) !important;
+            font-weight: 500; font-size: .88rem;
+            border-radius: 8px; padding: .4rem .7rem !important;
+            transition: all .18s;
+            display: flex; align-items: center; gap: .3rem;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+            background: rgba(255,255,255,.1);
+        }
+        .nav-link i { font-size: .85rem; }
+
+        /* Theme toggle */
+        .theme-toggle {
+            width: 38px; height: 22px;
+            background: rgba(255,255,255,.15);
+            border-radius: 11px;
+            border: 1.5px solid rgba(255,255,255,.2);
+            cursor: pointer;
+            position: relative;
+            transition: background .25s;
+            flex-shrink: 0;
+        }
+        .theme-toggle::after {
+            content: '';
+            width: 14px; height: 14px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px; left: 3px;
+            transition: transform .25s, background .25s;
+        }
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(240,165,0,.3);
+            border-color: rgba(240,165,0,.4);
+        }
+        [data-theme="dark"] .theme-toggle::after {
+            transform: translateX(16px);
+            background: var(--ivy-accent);
+        }
+        .theme-btn {
+            display: flex; align-items: center; gap: .5rem;
+            background: none; border: none;
+            color: rgba(255,255,255,.7); font-size: .78rem;
+            cursor: pointer; padding: .3rem .5rem;
+            border-radius: 8px; transition: all .18s;
+        }
+        .theme-btn:hover { color: white; background: rgba(255,255,255,.08); }
+        .theme-icon { font-size: 1rem; transition: transform .35s; }
+        [data-theme="dark"] .theme-icon { transform: rotate(180deg); }
+
+        /* User dropdown */
+        .user-avatar {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--ivy-accent), var(--ivy-accent2));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: .8rem;
+            flex-shrink: 0;
+        }
+        .dropdown-menu {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: .4rem;
+            min-width: 200px;
+        }
+        .dropdown-item {
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: .88rem; padding: .55rem .9rem;
+            display: flex; align-items: center; gap: .6rem;
+            transition: background .15s;
+        }
+        .dropdown-item:hover { background: var(--bg3); color: var(--ivy-blue); }
+        .dropdown-divider { border-color: var(--border); margin: .3rem 0; }
+        .dropdown-header { color: var(--text-muted); font-size: .75rem; padding: .4rem .9rem .2rem; }
+
+        /* ══════════════════════════════════════════════
+           CARDS
+        ══════════════════════════════════════════════ */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow .22s, transform .22s;
+        }
+        .card:hover { box-shadow: var(--card-hover); }
+        .card-lift:hover { transform: translateY(-3px); }
+
+        /* ══════════════════════════════════════════════
+           DOMAIN BADGES
+        ══════════════════════════════════════════════ */
+        .domain-badge {
+            display: inline-block; padding: 3px 10px;
+            border-radius: 20px; font-size: .72rem; font-weight: 600;
+        }
+        .domain-AI       { background:#dbeafe; color:#1d4ed8; }
+        .domain-LAW      { background:#fce7f3; color:#9d174d; }
+        .domain-BIO      { background:#dcfce7; color:#166534; }
+        .domain-ECE      { background:#fef3c7; color:#92400e; }
+        .domain-CS       { background:#ede9fe; color:#5b21b6; }
+        .domain-BUSINESS { background:#ffedd5; color:#9a3412; }
+        .domain-ENV      { background:#ecfdf5; color:#065f46; }
+        .domain-OTHER, .domain-GENERAL { background:#f3f4f6; color:#374151; }
+
+        [data-theme="dark"] .domain-AI       { background:#1e3a5f; color:#93c5fd; }
+        [data-theme="dark"] .domain-LAW      { background:#3b1c34; color:#f9a8d4; }
+        [data-theme="dark"] .domain-BIO      { background:#14342b; color:#86efac; }
+        [data-theme="dark"] .domain-ECE      { background:#3b2f0a; color:#fde68a; }
+        [data-theme="dark"] .domain-CS       { background:#2e1f5e; color:#c4b5fd; }
+        [data-theme="dark"] .domain-BUSINESS { background:#3b1f0a; color:#fdba74; }
+        [data-theme="dark"] .domain-ENV      { background:#0d2e22; color:#6ee7b7; }
+        [data-theme="dark"] .domain-OTHER, [data-theme="dark"] .domain-GENERAL { background:#1e2535; color:#94a3b8; }
+
+        /* ══════════════════════════════════════════════
+           BUTTONS
+        ══════════════════════════════════════════════ */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--ivy-blue), var(--ivy-light));
+            border: none; border-radius: 10px; font-weight: 600;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(26,60,110,.35);
+        }
+        .btn-warning { border-radius: 10px; font-weight: 700; }
+
+        /* ══════════════════════════════════════════════
+           SCORE RING
+        ══════════════════════════════════════════════ */
+        .score-ring {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 8px solid var(--ivy-accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 auto;
+        }
+
+        /* ══════════════════════════════════════════════
+           FLASH MESSAGES
+        ══════════════════════════════════════════════ */
+        .messages-container {
+            position: fixed; top: 72px; right: 20px;
+            z-index: 9999; min-width: 300px; max-width: 400px;
+        }
+
+        /* ══════════════════════════════════════════════
+           FORM CONTROLS (dark mode aware)
+        ══════════════════════════════════════════════ */
+        .form-control, .form-select {
+            background: var(--surface);
+            border-color: var(--border);
+            color: var(--text-primary);
+        }
+        .form-control:focus, .form-select:focus {
+            background: var(--surface);
+            color: var(--text-primary);
+            border-color: var(--ivy-blue);
+            box-shadow: 0 0 0 3px rgba(26,60,110,.12);
+        }
+        .form-label { color: var(--text-primary); }
+        textarea.form-control { color: var(--text-primary); }
+
+        /* ══════════════════════════════════════════════
+           SIDEBAR / UTILITY
+        ══════════════════════════════════════════════ */
+        .sidebar { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+        .text-muted { color: var(--text-secondary) !important; }
+        hr { border-color: var(--border); }
+        .alert-success { background:#f0fdf4; border-color:#bbf7d0; color:#166534; }
+        .alert-danger { background:#fef2f2; border-color:#fecaca; color:#991b1b; }
+
+        /* ══════════════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════════════ */
+        footer {
+            background: var(--nav-bg);
+            color: rgba(255,255,255,.6);
+            padding: 2.5rem 0 1.5rem;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255,255,255,.06);
+        }
+
+        /* ══════════════════════════════════════════════
+           SCROLLBAR
+        ══════════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<!-- ═══════════════════════  NAVBAR  ═══════════════════════ -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <div class="brand-icon"><i class="bi bi-mortarboard-fill" style="color:white;"></i></div>
+            Ivy<span class="accent">Intelligence</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                style="color:rgba(255,255,255,.8);box-shadow:none;">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto ms-3 gap-1">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'opportunity_list' %}active{% endif %}"
+                       href="{% url 'opportunity_list' %}">
+                        <i class="bi bi-search"></i>Opportunities
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                       href="{% url 'dashboard' %}">
+                        <i class="bi bi-grid-1x2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'community' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'community_feed' %}">
+                        <i class="bi bi-people"></i>Community
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'incoscore_dashboard' %}active{% endif %}"
+                       href="{% url 'incoscore_dashboard' %}">
+                        <i class="bi bi-trophy"></i>InCoScore
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'global_leaderboard' %}active{% endif %}"
+                       href="{% url 'global_leaderboard' %}">
+                        <i class="bi bi-bar-chart-line"></i>Leaderboard
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav align-items-center gap-2">
+                <!-- Dark/Light mode toggle -->
+                <li class="nav-item">
+                    <button class="theme-btn" onclick="toggleTheme()" title="Toggle dark/light mode" id="themeBtn">
+                        <span class="theme-icon" id="themeIcon">☀️</span>
+                        <div class="theme-toggle" id="themeToggle"></div>
+                    </button>
+                </li>
+
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 pe-0"
+                       href="#" data-bs-toggle="dropdown" style="border-radius:20px;padding:.3rem .7rem!important;">
+                        <div class="user-avatar">{{ user.username.0|upper }}</div>
+                        <span style="font-size:.88rem;color:rgba(255,255,255,.9);font-weight:500;">{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end mt-2">
+                        <li>
+                            <span class="dropdown-header">
+                                <i class="bi bi-person-circle me-1"></i>
+                                Signed in as <strong>{{ user.username }}</strong>
+                            </span>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'my_profile' %}">
+                                <i class="bi bi-person text-primary"></i>My Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'my_applications' %}">
+                                <i class="bi bi-file-text text-success"></i>My Applications
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'incoscore_dashboard' %}">
+                                <i class="bi bi-trophy text-warning"></i>My InCoScore
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'profile_edit' %}">
+                                <i class="bi bi-pencil text-secondary"></i>Edit Profile
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'account_logout' %}"
+                               style="color:#ef4444;">
+                                <i class="bi bi-box-arrow-right" style="color:#ef4444;"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_login' %}"
+                       style="color:rgba(255,255,255,.8)!important;">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-sm fw-bold px-3 py-2"
+                       href="{% url 'account_signup' %}"
+                       style="background:var(--ivy-accent);color:#1a2744;border-radius:10px;font-size:.85rem;">
+                        Sign Up Free
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Flash Messages -->
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+         role="alert" style="border-radius:12px;box-shadow:var(--shadow-lg);border:1px solid var(--border);">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Main Content -->
+<main>{% block content %}{% endblock %}</main>
+
+<!-- ═══════════════════════  FOOTER  ═══════════════════════ -->
+<footer>
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="brand-icon"><i class="bi bi-mortarboard-fill" style="color:white;"></i></div>
+                    <span style="font-family:'Sora',sans-serif;font-weight:800;color:white;font-size:1.1rem;">
+                        Ivy<span style="color:var(--ivy-accent);">Intelligence</span>
+                    </span>
+                </div>
+                <p style="font-size:.83rem;line-height:1.7;">Real-time Ivy League opportunity tracking with AI-powered personalization and InCoScore ranking system.</p>
+            </div>
+            <div class="col-md-3 offset-md-1">
+                <h6 style="color:rgba(255,255,255,.9);font-weight:600;margin-bottom:.85rem;">Platform</h6>
+                <ul class="list-unstyled" style="font-size:.85rem;">
+                    <li class="mb-1"><a href="{% url 'opportunity_list' %}" class="text-decoration-none" style="color:rgba(255,255,255,.6);">Browse Opportunities</a></li>
+                    <li class="mb-1"><a href="{% url 'community_feed' %}" class="text-decoration-none" style="color:rgba(255,255,255,.6);">Community</a></li>
+                    <li class="mb-1"><a href="{% url 'global_leaderboard' %}" class="text-decoration-none" style="color:rgba(255,255,255,.6);">Leaderboard</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 style="color:rgba(255,255,255,.9);font-weight:600;margin-bottom:.85rem;">Built With</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for tech in "Django 4.2,Celery,BeautifulSoup4,scikit-learn,Channels"|split:"," %}
+                    <span style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);padding:3px 10px;border-radius:20px;font-size:.75rem;">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+                <p style="font-size:.78rem;margin-top:.85rem;">LPU Python & Full Stack Project III</p>
+            </div>
+        </div>
+        <hr style="border-color:rgba(255,255,255,.1);margin:1.5rem 0 1rem;">
+        <p class="text-center mb-0" style="font-size:.78rem;">
+            © 2025 Ivy Intelligence &mdash; All rights reserved
+        </p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ── Dark / Light Mode ─────────────────────────────── */
+const root = document.documentElement;
+const THEME_KEY = 'ivy_theme';
+
+function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = theme === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem(THEME_KEY, theme);
+}
+
+function toggleTheme() {
+    const current = root.getAttribute('data-theme') || 'light';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+// Apply saved or system preference on load
+(function() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) {
+        applyTheme(saved);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+    }
+})();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

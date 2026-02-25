@@ -1,0 +1,125 @@
+{% extends 'base/base.html' %}
+{% block title %}{{ opportunity.title }} — Ivy Intelligence{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'opportunity_list' %}">Opportunities</a></li>
+            <li class="breadcrumb-item active">{{ opportunity.title|truncatewords:5 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="domain-badge domain-{{ opportunity.domain }} fs-6">{{ opportunity.get_domain_display }}</span>
+                    <span class="badge bg-primary">{{ opportunity.get_opportunity_type_display }}</span>
+                </div>
+                <h2 class="fw-bold mb-1">{{ opportunity.title }}</h2>
+                <p class="text-muted mb-3"><i class="bi bi-building me-1"></i>{{ opportunity.get_university_display }}</p>
+
+                <div class="row g-2 mb-4">
+                    {% if opportunity.deadline %}
+                    <div class="col-auto">
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                            <i class="bi bi-calendar-event me-1"></i>Deadline: {{ opportunity.deadline }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% if opportunity.location %}
+                    <div class="col-auto">
+                        <span class="badge bg-light text-dark border">
+                            <i class="bi bi-geo-alt me-1"></i>{{ opportunity.location }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% if opportunity.stipend %}
+                    <div class="col-auto">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="bi bi-cash me-1"></i>{{ opportunity.stipend }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <h5 class="fw-bold mb-2">About This Opportunity</h5>
+                <p style="line-height:1.8;">{{ opportunity.description }}</p>
+
+                {% if opportunity.get_tags_list %}
+                <div class="mt-3">
+                    {% for tag in opportunity.get_tags_list %}
+                    <span class="badge bg-light text-dark me-1">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar: Apply -->
+        <div class="col-lg-4">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3">Apply for This Opportunity</h5>
+
+                {% if user.is_authenticated %}
+                    {% if user_applied %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle-fill me-2"></i>You have already applied!
+                        <a href="{% url 'my_applications' %}" class="alert-link d-block mt-1">Track your application →</a>
+                    </div>
+                    {% else %}
+                    <form method="POST" action="{% url 'apply' opportunity.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Cover Letter (Optional)</label>
+                            <textarea name="cover_letter" class="form-control" rows="5" placeholder="Why are you interested in this opportunity? What makes you a strong candidate?"></textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="auto_apply" value="1" id="autoApply">
+                            <label class="form-check-label small" for="autoApply">
+                                Try auto-fill on external form
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-send me-2"></i>Submit Application
+                        </button>
+                    </form>
+                    <a href="{{ opportunity.source_url }}" target="_blank" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Visit Original Page
+                    </a>
+                    {% endif %}
+                {% else %}
+                <p class="text-muted small">Please log in to apply.</p>
+                <a href="{% url 'account_login' %}" class="btn btn-primary w-100">Login to Apply</a>
+                {% endif %}
+            </div>
+
+            <div class="card p-4 mt-3">
+                <h6 class="fw-bold mb-2">University</h6>
+                <p class="mb-0">{{ opportunity.get_university_display }}</p>
+                <small class="text-muted">Added {{ opportunity.scraped_at|date:"M d, Y" }}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Opportunities -->
+    {% if similar %}
+    <div class="mt-5">
+        <h5 class="fw-bold mb-3">Similar Opportunities in {{ opportunity.get_domain_display }}</h5>
+        <div class="row g-3">
+            {% for opp in similar %}
+            <div class="col-md-3">
+                <div class="card p-3 h-100">
+                    <span class="domain-badge domain-{{ opp.domain }} mb-2">{{ opp.get_domain_display }}</span>
+                    <h6 class="fw-bold small">{{ opp.title|truncatewords:8 }}</h6>
+                    <p class="text-muted" style="font-size:.8rem;">{{ opp.get_university_display }}</p>
+                    <a href="{% url 'opportunity_detail' opp.pk %}" class="btn btn-sm btn-outline-primary mt-auto">View</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

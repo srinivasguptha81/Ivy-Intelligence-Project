@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logged Out — Ivy Intelligence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0f2545 0%, #1a3c6e 60%, #2e6dad 100%);
+            display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem;
+        }
+        .card {
+            background: white; border: none;
+            border-radius: 20px; padding: 3rem 2.5rem;
+            max-width: 440px; width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,.25);
+        }
+        .brand {
+            font-size: 1.5rem; font-weight: 700;
+            color: #1a3c6e; margin-bottom: 1.75rem;
+            display: flex; align-items: center; justify-content: center; gap: .4rem;
+        }
+        .brand span { color: #f0a500; }
+        .goodbye-icon {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+        }
+        h3 { font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: .5rem; }
+        p { color: #6b7280; font-size: .93rem; line-height: 1.6; margin-bottom: 2rem; }
+        .btn-login {
+            background: linear-gradient(135deg, #1a3c6e, #2e6dad);
+            border: none; border-radius: 10px;
+            padding: .78rem 2rem; font-size: .95rem;
+            font-weight: 600; color: white;
+            text-decoration: none; display: inline-block;
+            transition: transform .15s, box-shadow .15s;
+            margin-bottom: .75rem;
+        }
+        .btn-login:hover { color: white; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26,60,110,.35); }
+        .btn-home {
+            border: 1.5px solid #e5e7eb; border-radius: 10px;
+            padding: .72rem 2rem; font-size: .9rem;
+            font-weight: 500; color: #374151;
+            text-decoration: none; display: inline-block;
+            background: white; transition: background .15s;
+        }
+        .btn-home:hover { background: #f9fafb; color: #374151; }
+        .features {
+            background: #f8fafc; border-radius: 12px;
+            padding: 1rem 1.25rem; margin: 1.5rem 0;
+            text-align: left;
+        }
+        .features small { display: flex; align-items: center; gap: .6rem;
+            color: #6b7280; font-size: .83rem; margin-bottom: .45rem; }
+        .features small:last-child { margin-bottom: 0; }
+        .features i { color: #f0a500; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="brand">
+            <i class="bi bi-mortarboard-fill" style="color:#1a3c6e;"></i>
+            Ivy<span>Intelligence</span>
+        </div>
+
+        <div class="goodbye-icon">👋</div>
+
+        <h3>You've been logged out</h3>
+        <p>Thanks for using Ivy Intelligence. Your session has ended safely. Come back anytime to discover new opportunities!</p>
+
+        <div class="features">
+            <small><i class="bi bi-star-fill"></i> Opportunities from 10+ Ivy League universities</small>
+            <small><i class="bi bi-robot"></i> AI-powered domain matching & classification</small>
+            <small><i class="bi bi-trophy-fill"></i> Build your InCoScore & rank among peers</small>
+            <small><i class="bi bi-people-fill"></i> Community, groups & live chat</small>
+        </div>
+
+        <div class="d-flex flex-column gap-2">
+            <a href="{% url 'account_login' %}" class="btn-login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Log Back In
+            </a>
+            <a href="{% url 'home' %}" class="btn-home">
+                <i class="bi bi-house me-2"></i>Go to Home
+            </a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+{% extends 'base/base.html' %}
+{% block title %}Community — Ivy Intelligence{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Left sidebar: groups -->
+        <div class="col-lg-3">
+            <div class="sidebar">
+                <h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>Domain Groups</h6>
+                {% for group in groups %}
+                <a href="{% url 'group_detail' group.id %}" class="d-flex align-items-center text-decoration-none text-dark mb-2 p-2 rounded" style="background:#f8f9fa;">
+                    <span class="domain-badge domain-{{ group.domain }} me-2">{{ group.domain }}</span>
+                    <span class="small fw-bold">{{ group.name }}</span>
+                </a>
+                {% endfor %}
+                <a href="{% url 'groups_list' %}" class="btn btn-outline-primary btn-sm w-100 mt-2">All Groups</a>
+            </div>
+
+            <!-- Filter -->
+            <div class="sidebar mt-3">
+                <h6 class="fw-bold mb-3">Filter by Domain</h6>
+                <a href="{% url 'community_feed' %}" class="btn btn-sm {% if not domain_filter %}btn-primary{% else %}btn-light{% endif %} w-100 mb-1">All</a>
+                {% for code, name in domain_choices %}
+                <a href="?domain={{ code }}" class="btn btn-sm {% if domain_filter == code %}btn-primary{% else %}btn-light{% endif %} w-100 mb-1">{{ name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main feed -->
+        <div class="col-lg-6">
+            <!-- Create post -->
+            {% if user.is_authenticated %}
+            <div class="card p-3 mb-4">
+                <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <textarea name="content" class="form-control border-0 mb-2" rows="3" placeholder="Share an achievement, question, or update with the community..." style="resize:none;"></textarea>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-2">
+                            <select name="domain_tag" class="form-select form-select-sm" style="width:auto;">
+                                {% for code, name in domain_choices %}
+                                <option value="{{ code }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="file" name="image" class="form-control form-control-sm" style="width:auto;" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">Post</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Posts -->
+            {% for post in page_obj %}
+            <div class="card p-3 mb-3" id="post-{{ post.id }}">
+                <div class="d-flex align-items-start mb-2">
+                    <div style="width:40px;height:40px;background:var(--ivy-blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;" class="me-2">
+                        {{ post.author.username.0|upper }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'profile_view' post.author.username %}" class="fw-bold text-decoration-none text-dark">{{ post.author.username }}</a>
+                            <small class="text-muted">{{ post.created_at|timesince }} ago</small>
+                        </div>
+                        <span class="domain-badge domain-{{ post.domain_tag }}">{{ post.domain_tag }}</span>
+                    </div>
+                </div>
+
+                <p class="mb-2">{{ post.content }}</p>
+                {% if post.image %}
+                <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" style="max-height:300px;object-fit:cover;width:100%;">
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="d-flex gap-3 mt-2">
+                    <button class="btn btn-sm btn-light like-btn" data-post-id="{{ post.id }}"
+                            onclick="toggleLike({{ post.id }}, this)">
+                        <i class="bi bi-heart{% if user in post.likes.all %}-fill text-danger{% endif %} me-1"></i>
+                        <span class="like-count">{{ post.like_count }}</span>
+                    </button>
+                    <button class="btn btn-sm btn-light" onclick="toggleComments({{ post.id }})">
+                        <i class="bi bi-chat me-1"></i>{{ post.comment_count }} Comments
+                    </button>
+                    {% if user == post.author %}
+                    <a href="{% url 'delete_post' post.id %}" class="btn btn-sm btn-light text-danger ms-auto"
+                       onclick="return confirm('Delete this post?')">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Comments (hidden by default) -->
+                <div id="comments-{{ post.id }}" style="display:none;" class="mt-3 border-top pt-3">
+                    {% for comment in post.comments.all %}
+                    <div class="d-flex mb-2">
+                        <div style="width:30px;height:30px;background:#e5e7eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;" class="me-2">
+                            {{ comment.author.username.0|upper }}
+                        </div>
+                        <div style="background:#f3f4f6;border-radius:8px;padding:6px 12px;flex-grow:1;">
+                            <strong class="small">{{ comment.author.username }}</strong>
+                            <p class="mb-0 small">{{ comment.content }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if user.is_authenticated %}
+                    <form method="POST" action="{% url 'add_comment' post.id %}" class="mt-2 d-flex gap-2">
+                        {% csrf_token %}
+                        <input type="text" name="content" class="form-control form-control-sm" placeholder="Add a comment...">
+                        <button type="submit" class="btn btn-primary btn-sm">Send</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="bi bi-chat-square" style="font-size:3rem;color:#ccc;"></i>
+                <h5 class="mt-3 text-muted">No posts yet</h5>
+                <p class="text-muted small">Be the first to share something!</p>
+            </div>
+            {% endfor %}
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-3">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&domain={{ domain_filter }}">Previous</a></li>{% endif %}
+                    <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&domain={{ domain_filter }}">Next</a></li>{% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+
+        <!-- Right sidebar: leaderboard -->
+        <div class="col-lg-3">
+            <div class="sidebar">
+                <h6 class="fw-bold mb-3"><i class="bi bi-trophy me-2 text-warning"></i>Top InCoScore</h6>
+                {% with profiles=request.user.studentprofile %}
+                <a href="{% url 'global_leaderboard' %}" class="btn btn-outline-warning btn-sm w-100">View Full Leaderboard</a>
+                {% endwith %}
+            </div>
+            <div class="sidebar mt-3">
+                <h6 class="fw-bold mb-2">Your Applications</h6>
+                <a href="{% url 'my_applications' %}" class="btn btn-outline-primary btn-sm w-100">Track Applications</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleLike(postId, btn) {
+    fetch(`/community/post/${postId}/like/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)[1]},
+    })
+    .then(r => r.json())
+    .then(data => {
+        const icon = btn.querySelector('i');
+        const count = btn.querySelector('.like-count');
+        count.textContent = data.count;
+        if (data.liked) {
+            icon.className = 'bi bi-heart-fill text-danger me-1';
+        } else {
+            icon.className = 'bi bi-heart me-1';
+        }
+    });
+}
+
+function toggleComments(postId) {
+    const el = document.getElementById(`comments-${postId}`);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

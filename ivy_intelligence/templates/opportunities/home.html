@@ -1,0 +1,649 @@
+{% extends 'base/base.html' %}
+{% block title %}Ivy Intelligence — Find Ivy League Opportunities{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ══  HERO  ══════════════════════════════════════════════ */
+.hero {
+    position: relative;
+    min-height: 92vh;
+    display: flex; align-items: center;
+    overflow: hidden;
+    background: linear-gradient(160deg, #060e1f 0%, #0f2545 45%, #1a3c6e 100%);
+}
+.hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(46,109,173,.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(46,109,173,.18) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+.hero-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+}
+.glow-1 { width: 500px; height: 500px; background: rgba(240,165,0,.12); top: -100px; right: -100px; }
+.glow-2 { width: 400px; height: 400px; background: rgba(46,109,173,.2); bottom: -80px; left: -80px; }
+.glow-3 { width: 300px; height: 300px; background: rgba(224,93,32,.08); top: 40%; left: 40%; }
+
+.hero-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: rgba(240,165,0,.15);
+    border: 1px solid rgba(240,165,0,.3);
+    color: #fbbf24;
+    border-radius: 30px; padding: .35rem 1rem;
+    font-size: .8rem; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeSlideUp .7s ease both;
+}
+.hero-badge .dot { width: 6px; height: 6px; background: #fbbf24; border-radius: 50%; animation: pulseDot 2s infinite; }
+@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+.hero-title {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2.4rem, 5.5vw, 4rem);
+    font-weight: 800; color: white;
+    line-height: 1.1; letter-spacing: -.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeSlideUp .8s ease .1s both;
+}
+.hero-title .highlight {
+    background: linear-gradient(135deg, #f0a500, #e05d20);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.08rem; color: rgba(255,255,255,.65);
+    line-height: 1.75; max-width: 540px;
+    margin-bottom: 2.25rem;
+    animation: fadeSlideUp .8s ease .2s both;
+}
+
+.hero-cta {
+    display: flex; flex-wrap: wrap; gap: 1rem;
+    animation: fadeSlideUp .8s ease .3s both;
+}
+.btn-hero-primary {
+    background: linear-gradient(135deg, #f0a500, #e05d20);
+    border: none; border-radius: 14px;
+    padding: .85rem 2rem; font-size: 1rem; font-weight: 700;
+    color: white; text-decoration: none;
+    display: inline-flex; align-items: center; gap: .5rem;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 6px 24px rgba(240,165,0,.35);
+}
+.btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(240,165,0,.45); color:white; }
+.btn-hero-secondary {
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.2);
+    border-radius: 14px; padding: .85rem 2rem;
+    font-size: 1rem; font-weight: 600; color: white;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: .5rem;
+    transition: background .2s, border-color .2s;
+    backdrop-filter: blur(8px);
+}
+.btn-hero-secondary:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.35); color: white; }
+
+/* Stat pills */
+.stat-pills { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 3rem; animation: fadeSlideUp .8s ease .4s both; }
+.stat-pill {
+    display: flex; align-items: center; gap: .6rem;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px; padding: .6rem 1rem;
+    backdrop-filter: blur(8px);
+}
+.stat-num { font-family: 'Sora', sans-serif; font-size: 1.3rem; font-weight: 800; color: white; }
+.stat-lbl { font-size: .75rem; color: rgba(255,255,255,.6); font-weight: 500; }
+
+/* University trust bar */
+.uni-bar {
+    display: flex; align-items: center; flex-wrap: wrap; gap: .65rem;
+    margin-top: 3rem; animation: fadeSlideUp .8s ease .5s both;
+}
+.uni-pill {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    color: rgba(255,255,255,.7);
+    border-radius: 30px; padding: .25rem .85rem;
+    font-size: .78rem; font-weight: 600;
+    transition: all .2s;
+}
+.uni-pill:hover { background: rgba(255,255,255,.14); color: white; }
+
+/* ══  HERO VISUAL CARD (right side)  ══════════════════════ */
+.hero-visual { animation: fadeSlideUp .9s ease .15s both; }
+.mockup-card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 20px;
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,.4);
+}
+.mockup-header {
+    background: rgba(255,255,255,.05);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    padding: .8rem 1.2rem;
+    display: flex; align-items: center; gap: .5rem;
+}
+.dot-red   { width:10px;height:10px;background:#ff5f57;border-radius:50%; }
+.dot-yellow{ width:10px;height:10px;background:#ffbd2e;border-radius:50%; }
+.dot-green { width:10px;height:10px;background:#28ca41;border-radius:50%; }
+.mockup-title { font-size:.78rem;color:rgba(255,255,255,.5);margin-left:.4rem;font-weight:500; }
+
+.opp-item {
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    padding: .85rem 1.2rem;
+    display: flex; align-items: center; gap: .9rem;
+    transition: background .15s;
+}
+.opp-item:hover { background: rgba(255,255,255,.04); }
+.opp-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+}
+.opp-text strong { font-size: .88rem; color: white; font-weight: 600; display: block; }
+.opp-text span { font-size: .75rem; color: rgba(255,255,255,.5); }
+.opp-pill {
+    margin-left: auto; flex-shrink: 0;
+    font-size: .68rem; font-weight: 700; padding: .2rem .65rem;
+    border-radius: 20px;
+}
+
+/* ══  SECTIONS  ═════════════════════════════════════════ */
+.section-label {
+    font-size: .75rem; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ivy-accent);
+    margin-bottom: .5rem;
+}
+.section-title {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+    font-weight: 800; color: var(--text-primary);
+    letter-spacing: -.02em; line-height: 1.2;
+}
+.section-desc { color: var(--text-secondary); font-size: 1rem; line-height: 1.7; max-width: 520px; }
+
+/* How it works */
+.steps-wrap { position: relative; }
+.step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 2rem 1.75rem;
+    position: relative; overflow: hidden;
+    transition: transform .25s, box-shadow .25s;
+}
+.step-card:hover { transform: translateY(-5px); box-shadow: var(--card-hover); }
+.step-num {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--ivy-blue), var(--ivy-light));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem; color: white;
+    margin-bottom: 1.25rem;
+}
+.step-emoji { font-size: 2rem; margin-bottom: .75rem; display: block; }
+.step-card h5 {
+    font-family: 'Sora', sans-serif; font-weight: 700;
+    font-size: 1.05rem; color: var(--text-primary); margin-bottom: .6rem;
+}
+.step-card p { font-size: .88rem; color: var(--text-secondary); line-height: 1.7; margin: 0; }
+.step-connector {
+    position: absolute; top: 3.2rem; right: -1.2rem;
+    width: 2.4rem; height: 2px;
+    background: linear-gradient(90deg, var(--border), transparent);
+    z-index: 1;
+}
+.step-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: linear-gradient(90deg, var(--ivy-blue), var(--ivy-light));
+    border-radius: 20px 20px 0 0;
+}
+
+/* Domain explorer */
+.domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+.domain-card-exp {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.4rem 1rem;
+    text-align: center; text-decoration: none;
+    transition: all .22s;
+    display: block;
+}
+.domain-card-exp:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-hover);
+    border-color: var(--ivy-blue);
+}
+.domain-card-exp .d-emoji { font-size: 2rem; display: block; margin-bottom: .6rem; }
+.domain-card-exp .d-name {
+    font-weight: 700; font-size: .88rem; color: var(--text-primary);
+    font-family: 'Sora', sans-serif;
+}
+.domain-card-exp .d-count { font-size: .75rem; color: var(--text-secondary); margin-top: .15rem; }
+
+/* Opportunities */
+.opp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.4rem;
+    transition: all .22s; display: flex; flex-direction: column;
+}
+.opp-card:hover { transform: translateY(-4px); box-shadow: var(--card-hover); }
+.uni-tag {
+    font-size: .72rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .06em;
+}
+.opp-card h6 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: .97rem;
+    color: var(--text-primary); margin: .5rem 0;
+    line-height: 1.4;
+}
+.opp-card p { font-size: .83rem; color: var(--text-secondary); line-height: 1.6; flex: 1; }
+.deadline-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .75rem; color: #ef4444; font-weight: 600;
+}
+.btn-view {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--ivy-blue); border-radius: 10px;
+    padding: .5rem 1.1rem; font-size: .85rem; font-weight: 600;
+    text-decoration: none; transition: all .18s;
+    display: inline-flex; align-items: center; gap: .4rem;
+}
+.btn-view:hover { background: var(--ivy-blue); color: white; border-color: var(--ivy-blue); }
+
+/* CTA section */
+.cta-section {
+    background: linear-gradient(135deg, #0f2545 0%, #1a3c6e 50%, #2e6dad 100%);
+    border-radius: 28px; padding: 4rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+}
+.cta-section::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+.cta-section * { position: relative; }
+
+/* Features row */
+.feature-chip {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 30px; padding: .4rem 1rem;
+    font-size: .83rem; font-weight: 500; color: var(--text-secondary);
+}
+.feature-chip i { color: var(--ivy-accent); }
+
+/* Animations */
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════  HERO  ═══════════════════════════════ -->
+<section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow glow-1"></div>
+    <div class="hero-glow glow-2"></div>
+    <div class="hero-glow glow-3"></div>
+
+    <div class="container py-5">
+        <div class="row align-items-center g-5">
+
+            <!-- Left: Copy -->
+            <div class="col-lg-6">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    AI-Powered · Real-Time · Free
+                </div>
+
+                <h1 class="hero-title">
+                    Never miss an<br>
+                    <span class="highlight">Ivy League</span><br>
+                    opportunity again
+                </h1>
+
+                <p class="hero-subtitle">
+                    Intelligent tracking of internships, hackathons, research programs, and scholarships from Harvard, MIT, Yale, Stanford & more — matched to your profile by AI.
+                </p>
+
+                <div class="hero-cta">
+                    <a href="{% url 'account_signup' %}" class="btn-hero-primary">
+                        <i class="bi bi-rocket-takeoff"></i>Get Started Free
+                    </a>
+                    <a href="{% url 'opportunity_list' %}" class="btn-hero-secondary">
+                        <i class="bi bi-search"></i>Browse Opportunities
+                    </a>
+                </div>
+
+                <div class="stat-pills">
+                    <div class="stat-pill">
+                        <div>
+                            <div class="stat-num">{{ stats.total }}+</div>
+                            <div class="stat-lbl">Opportunities</div>
+                        </div>
+                    </div>
+                    <div class="stat-pill">
+                        <div>
+                            <div class="stat-num">10+</div>
+                            <div class="stat-lbl">Universities</div>
+                        </div>
+                    </div>
+                    <div class="stat-pill">
+                        <div>
+                            <div class="stat-num">{{ stats.domains }}</div>
+                            <div class="stat-lbl">Domains</div>
+                        </div>
+                    </div>
+                    <div class="stat-pill">
+                        <div>
+                            <div class="stat-num">6h</div>
+                            <div class="stat-lbl">Refresh Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uni-bar">
+                    <span style="color:rgba(255,255,255,.4);font-size:.75rem;font-weight:600;">TRACKING ↗</span>
+                    <span class="uni-pill">Harvard</span>
+                    <span class="uni-pill">MIT</span>
+                    <span class="uni-pill">Yale</span>
+                    <span class="uni-pill">Stanford</span>
+                    <span class="uni-pill">Princeton</span>
+                    <span class="uni-pill">Columbia</span>
+                    <span class="uni-pill">+ more</span>
+                </div>
+            </div>
+
+            <!-- Right: Mockup card -->
+            <div class="col-lg-6 hero-visual">
+                <div class="mockup-card">
+                    <div class="mockup-header">
+                        <div class="dot-red"></div>
+                        <div class="dot-yellow"></div>
+                        <div class="dot-green"></div>
+                        <span class="mockup-title">ivy-intelligence · dashboard</span>
+                    </div>
+                    <div class="opp-item">
+                        <div class="opp-icon" style="background:rgba(219,234,254,.15);">🔬</div>
+                        <div class="opp-text">
+                            <strong>Harvard Summer Research Program</strong>
+                            <span>Harvard University · AI & Machine Learning</span>
+                        </div>
+                        <span class="opp-pill" style="background:rgba(219,234,254,.2);color:#93c5fd;">NEW</span>
+                    </div>
+                    <div class="opp-item">
+                        <div class="opp-icon" style="background:rgba(220,252,231,.12);">💻</div>
+                        <div class="opp-text">
+                            <strong>HackMIT 2025</strong>
+                            <span>MIT · Hackathon · $10,000 Prize</span>
+                        </div>
+                        <span class="opp-pill" style="background:rgba(220,252,231,.2);color:#86efac;">OPEN</span>
+                    </div>
+                    <div class="opp-item">
+                        <div class="opp-icon" style="background:rgba(254,243,199,.12);">⚖️</div>
+                        <div class="opp-text">
+                            <strong>Yale International Law Fellowship</strong>
+                            <span>Yale University · Fellowship · Paid</span>
+                        </div>
+                        <span class="opp-pill" style="background:rgba(254,243,199,.2);color:#fde68a;">HOT</span>
+                    </div>
+                    <div class="opp-item">
+                        <div class="opp-icon" style="background:rgba(237,233,254,.12);">🧬</div>
+                        <div class="opp-text">
+                            <strong>Stanford Biomedical Research</strong>
+                            <span>Stanford University · Internship · $4,000/mo</span>
+                        </div>
+                        <span class="opp-pill" style="background:rgba(237,233,254,.2);color:#c4b5fd;">AI ✓</span>
+                    </div>
+                    <div class="opp-item" style="border:none;">
+                        <div class="opp-icon" style="background:rgba(255,237,213,.12);">📈</div>
+                        <div class="opp-text">
+                            <strong>Penn Wharton Social Impact</strong>
+                            <span>UPenn · Scholarship · $25,000</span>
+                        </div>
+                        <span class="opp-pill" style="background:rgba(255,237,213,.2);color:#fdba74;">TOP</span>
+                    </div>
+                    <div style="padding:.8rem 1.2rem;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;">
+                        <span style="font-size:.74rem;color:rgba(255,255,255,.4);">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Updated 2 mins ago
+                        </span>
+                        <span style="font-size:.74rem;color:rgba(240,165,0,.7);font-weight:600;">
+                            <i class="bi bi-robot me-1"></i>AI Classified
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════  HOW IT WORKS  ══════════════════════ -->
+<section class="py-6 reveal" style="padding:5rem 0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">How It Works</div>
+            <h2 class="section-title mx-auto mb-3">From university website<br>to your dashboard in minutes</h2>
+            <p class="section-desc mx-auto">A fully automated pipeline powered by AI — no manual work, no missed deadlines.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="step-card h-100">
+                    <span class="step-emoji">🕷️</span>
+                    <div class="step-num">01</div>
+                    <h5>Real-Time Scraping</h5>
+                    <p>Our system scans Harvard, MIT, Yale, Stanford & more every 6 hours using web scraping with change detection to catch new listings instantly.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card h-100">
+                    <span class="step-emoji">🤖</span>
+                    <div class="step-num">02</div>
+                    <h5>AI Classification</h5>
+                    <p>A TF-IDF + Logistic Regression classifier automatically assigns each opportunity to the right academic domain with high accuracy.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card h-100">
+                    <span class="step-emoji">🎯</span>
+                    <div class="step-num">03</div>
+                    <h5>Personalized Feed</h5>
+                    <p>Your dashboard shows only opportunities matching your domains, skills, and academic background — never scroll through irrelevant listings.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card h-100">
+                    <span class="step-emoji">🏆</span>
+                    <div class="step-num">04</div>
+                    <h5>InCoScore Ranking</h5>
+                    <p>Build your Intelligent Competency Score by logging verified achievements. Get shortlisted faster with a strong academic profile.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════  DOMAIN EXPLORER  ══════════════════ -->
+<section style="padding:4.5rem 0; background:var(--bg2);" class="reveal">
+    <div class="container">
+        <div class="row align-items-center mb-5">
+            <div class="col">
+                <div class="section-label">Explore by Domain</div>
+                <h2 class="section-title">Find opportunities<br>in your field</h2>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'opportunity_list' %}" class="btn-view">
+                    View all <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="domain-grid">
+            <a href="{% url 'opportunity_list' %}?domain=AI" class="domain-card-exp">
+                <span class="d-emoji">🤖</span>
+                <div class="d-name">Artificial Intelligence</div>
+                <div class="d-count">ML · NLP · Vision</div>
+            </a>
+            <a href="{% url 'opportunity_list' %}?domain=CS" class="domain-card-exp">
+                <span class="d-emoji">💻</span>
+                <div class="d-name">Computer Science</div>
+                <div class="d-count">Software · Systems</div>
+            </a>
+            <a href="{% url 'opportunity_list' %}?domain=BIO" class="domain-card-exp">
+                <span class="d-emoji">🧬</span>
+                <div class="d-name">Biomedical</div>
+                <div class="d-count">Research · Medicine</div>
+            </a>
+            <a href="{% url 'opportunity_list' %}?domain=LAW" class="domain-card-exp">
+                <span class="d-emoji">⚖️</span>
+                <div class="d-name">Law</div>
+                <div class="d-count">Policy · Rights</div>
+            </a>
+            <a href="{% url 'opportunity_list' %}?domain=BUSINESS" class="domain-card-exp">
+                <span class="d-emoji">📈</span>
+                <div class="d-name">Business</div>
+                <div class="d-count">Finance · Strategy</div>
+            </a>
+            <a href="{% url 'opportunity_list' %}?domain=ECE" class="domain-card-exp">
+                <span class="d-emoji">⚡</span>
+                <div class="d-name">Electronics</div>
+                <div class="d-count">ECE · Robotics</div>
+            </a>
+            <a href="{% url 'opportunity_list' %}?domain=ENV" class="domain-card-exp">
+                <span class="d-emoji">🌿</span>
+                <div class="d-name">Environment</div>
+                <div class="d-count">Climate · Sustainability</div>
+            </a>
+            <a href="{% url 'opportunity_list' %}" class="domain-card-exp"
+               style="border-style:dashed;background:transparent;">
+                <span class="d-emoji">🔍</span>
+                <div class="d-name">All Domains</div>
+                <div class="d-count">Browse everything</div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════  LATEST OPPORTUNITIES  ═════════════ -->
+{% if featured %}
+<section style="padding:5rem 0;" class="reveal">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+            <div>
+                <div class="section-label">Latest Listings</div>
+                <h2 class="section-title mb-0">Fresh opportunities<br>added recently</h2>
+            </div>
+            <a href="{% url 'opportunity_list' %}" class="btn-view">
+                Browse all <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            {% for opp in featured %}
+            <div class="col-md-6 col-lg-4">
+                <div class="opp-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="domain-badge domain-{{ opp.domain }}">{{ opp.get_domain_display }}</span>
+                        <span class="uni-tag">{{ opp.get_university_display }}</span>
+                    </div>
+                    <h6>{{ opp.title|truncatewords:11 }}</h6>
+                    <p>{{ opp.description|truncatewords:22|default:"Exciting opportunity from a top university." }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-auto pt-2 flex-wrap gap-2">
+                        <div>
+                            <span class="badge rounded-pill" style="background:var(--bg3);color:var(--text-secondary);font-size:.72rem;">
+                                {{ opp.get_opportunity_type_display }}
+                            </span>
+                            {% if opp.deadline %}
+                            <span class="deadline-badge ms-2">
+                                <i class="bi bi-alarm"></i>{{ opp.deadline }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'opportunity_detail' opp.pk %}" class="btn-view">
+                            Details <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════  FEATURES ROW  ══════════════════════ -->
+<section style="padding:2rem 0 5rem;" class="reveal">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <div class="feature-chip"><i class="bi bi-arrow-clockwise"></i>Scrapes every 6 hours</div>
+            <div class="feature-chip"><i class="bi bi-robot"></i>TF-IDF + ML classifier</div>
+            <div class="feature-chip"><i class="bi bi-lightning-fill"></i>Auto-fill applications</div>
+            <div class="feature-chip"><i class="bi bi-shield-check"></i>Verified achievements</div>
+            <div class="feature-chip"><i class="bi bi-chat-dots"></i>Real-time group chat</div>
+            <div class="feature-chip"><i class="bi bi-trophy"></i>InCoScore ranking</div>
+            <div class="feature-chip"><i class="bi bi-moon-stars"></i>Dark & light mode</div>
+            <div class="feature-chip"><i class="bi bi-star"></i>100% free forever</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════  CTA  ════════════════════════════════ -->
+<section style="padding:0 0 5rem;" class="reveal">
+    <div class="container">
+        <div class="cta-section">
+            <div class="section-label" style="color:rgba(240,165,0,.8);">Start Today</div>
+            <h2 style="font-family:'Sora',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:white;letter-spacing:-.03em;margin-bottom:.75rem;">
+                Your Ivy League journey<br>starts with one click
+            </h2>
+            <p style="color:rgba(255,255,255,.65);font-size:1rem;max-width:480px;margin:0 auto 2.25rem;line-height:1.7;">
+                Join students already using Ivy Intelligence to discover world-class opportunities and build their academic careers.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{% url 'account_signup' %}" class="btn-hero-primary">
+                    <i class="bi bi-person-plus"></i>Create Free Account
+                </a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn-hero-secondary">
+                    <i class="bi bi-grid-1x2"></i>Go to Dashboard
+                </a>
+                {% else %}
+                <a href="{% url 'account_login' %}" class="btn-hero-secondary">
+                    <i class="bi bi-box-arrow-in-right"></i>Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

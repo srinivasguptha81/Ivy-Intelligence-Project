@@ -1,0 +1,37 @@
+{% extends 'base/base.html' %}
+{% block title %}Apply — {{ opportunity.title }}{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 700px;">
+    <h3 class="fw-bold mb-1" style="color: var(--ivy-blue);">Apply for Opportunity</h3>
+    <p class="text-muted mb-4">{{ opportunity.title }} — {{ opportunity.get_university_display }}</p>
+
+    <div class="card p-4">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">Cover Letter <span class="text-muted fw-normal">(Optional but recommended)</span></label>
+                <textarea name="cover_letter" class="form-control" rows="6"
+                    placeholder="Why are you a strong candidate for this opportunity? What experience do you bring?"></textarea>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="auto_apply" value="1" id="autoApply">
+                <label class="form-check-label" for="autoApply">
+                    <strong>Try auto-fill</strong> — We'll attempt to auto-fill the external application form with your profile data.
+                </label>
+            </div>
+
+            <div class="alert alert-info small mb-3">
+                <i class="bi bi-info-circle me-2"></i>
+                Your resume: <strong>{% if profile.resume %}{{ profile.resume.name }}{% else %}Not uploaded — <a href="{% url 'profile_edit' %}">add it now</a>{% endif %}</strong>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send me-2"></i>Submit Application
+                </button>
+                <a href="{% url 'opportunity_detail' opportunity.pk %}" class="btn btn-light">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

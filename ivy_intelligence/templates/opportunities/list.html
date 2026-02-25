@@ -1,0 +1,78 @@
+{% extends 'base/base.html' %}
+{% block title %}Browse Opportunities — Ivy Intelligence{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4" style="color: var(--ivy-blue);">Browse Ivy League Opportunities</h3>
+
+    <!-- Filters -->
+    <div class="card p-3 mb-4">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control" placeholder="Search opportunities..." value="{{ q }}">
+            </div>
+            <div class="col-md-3">
+                <select name="domain" class="form-select">
+                    <option value="">All Domains</option>
+                    {% for code, name in domain_choices %}
+                    <option value="{{ code }}" {% if domain_filter == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for code, name in type_choices %}
+                    <option value="{{ code }}" {% if type_filter == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <p class="text-muted mb-3">{{ page_obj.paginator.count }} opportunities found</p>
+
+    <div class="row g-3">
+        {% for opp in page_obj %}
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="domain-badge domain-{{ opp.domain }}">{{ opp.get_domain_display }}</span>
+                    <small class="text-muted">{{ opp.get_university_display }}</small>
+                </div>
+                <h6 class="fw-bold">{{ opp.title|truncatewords:10 }}</h6>
+                <p class="text-muted small">{{ opp.description|truncatewords:20 }}</p>
+                <div class="mt-auto">
+                    <span class="badge bg-light text-dark">{{ opp.get_opportunity_type_display }}</span>
+                    {% if opp.deadline %}
+                    <small class="text-danger d-block mt-1"><i class="bi bi-clock me-1"></i>{{ opp.deadline }}</small>
+                    {% endif %}
+                    <a href="{% url 'opportunity_detail' opp.pk %}" class="btn btn-primary btn-sm w-100 mt-2">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-search" style="font-size:3rem; color:#ccc;"></i>
+            <h5 class="mt-3 text-muted">No opportunities found</h5>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&domain={{ domain_filter }}&type={{ type_filter }}">Previous</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&domain={{ domain_filter }}&type={{ type_filter }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
