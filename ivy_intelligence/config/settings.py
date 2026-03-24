@@ -5,6 +5,7 @@ Django settings for Ivy League Opportunity Intelligence System
 import os
 from pathlib import Path
 from decouple import config
+from django.contrib.auth import get_user_model
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -173,3 +174,13 @@ REST_FRAMEWORK = {
 
 # Email (console for dev)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+User = get_user_model()
+
+if os.getenv("DJANGO_SUPERUSER_USERNAME"):
+    if not User.objects.filter(username=os.getenv("DJANGO_SUPERUSER_USERNAME")).exists():
+        User.objects.create_superuser(
+            os.getenv("DJANGO_SUPERUSER_USERNAME"),
+            os.getenv("DJANGO_SUPERUSER_EMAIL"),
+            os.getenv("DJANGO_SUPERUSER_PASSWORD")
+        )
